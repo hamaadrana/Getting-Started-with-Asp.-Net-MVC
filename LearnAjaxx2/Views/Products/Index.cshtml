@@ -1,0 +1,51 @@
+﻿@model IEnumerable<LearnAjaxx2.Product>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+           Product Name
+        </th>
+        <th>
+            Purchase Price
+        </th>
+        <th>
+            Sales Price
+        </th>
+        <th>
+            Supplier Name
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.productName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.purchasePrice)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.salesPrice)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Supplier.supplierName)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.id }) |
+            @Html.ActionLink("Details", "Details", new { id=item.id }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.id })
+        </td>
+    </tr>
+}
+
+</table>

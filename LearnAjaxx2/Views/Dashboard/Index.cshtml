@@ -1,0 +1,207 @@
+﻿@model LearnAjaxx2.Invoice
+
+@{
+    ViewBag.Title = "Dashboard";
+    var invoice = ViewBag.invoiceNum;
+}
+
+
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+
+
+    <h2 style="text-align:center">Invoices</h2>
+    <hr />
+    <div class="container">
+        <div class="row">
+
+
+
+
+
+            <div class="col-md-2">
+                <label>Invoice Num:</label>
+                @*@Html.EditorFor(model => model.invoiceNum, "2" ,new { htmlAttributes = new { @class = "form-control", @id = "invoice", @placeholder = ViewBag.invoiceNum} })*@
+                <input type="text" class="form-control" name="invoice" id="invoice" placeholder="@ViewBag.invoiceNum" value="@ViewBag.invoiceNum" />
+                @Html.ValidationMessageFor(model => model.invoiceNum, "", new { @class = "text-danger" })
+            </div>
+            <div class="col-md-2">
+                <label>Product:</label>
+                @Html.DropDownList("productId", null, htmlAttributes: new { @class = "form-control", @id = "product", @placeholder = "Product #" })
+                @Html.ValidationMessageFor(model => model.productId, "", new { @class = "text-danger" })
+            </div>
+            <div class="col-md-2">
+                <label>Quantity:</label>
+                @Html.EditorFor(model => model.quantity, new { htmlAttributes = new { @class = "form-control", @id = "quantity", @placeholder = "Quantity #" } })
+                @Html.ValidationMessageFor(model => model.quantity, "", new { @class = "text-danger" })
+            </div>
+            @Html.EditorFor(model => model.bill, new { htmlAttributes = new { @class = "form-control", @id = "totalbill", @type = "hidden" } })
+            @Html.ValidationMessageFor(model => model.bill, "", new { @class = "text-danger" })
+            <div class="col-md-2">
+                <label>Customer:</label>
+                @Html.DropDownList("customerId", null, htmlAttributes: new { @class = "form-control", @placeholder = "Customer", @id = "Customer" })
+                @Html.ValidationMessageFor(model => model.customerId, "", new { @class = "text-danger" })
+            </div>
+            <div class="col-md-2">
+                <label>Add Invoice:</label>
+                <br />
+                <input type="submit" class="btn btn-primary" id="btnSave" value="Add" />
+            </div>
+            <div class="col-md-2">
+
+                <input type="text" class="form-control" id="keyword" />
+
+
+            </div>
+            <div class="col-md-2">
+                <br />
+                <input type="submit" id="btnSearch" value="Search" class="btn" />
+                <input type="submit" id="btnRefresh" value="Refresh" class="btn" />
+
+            </div>
+
+        </div>
+        <hr />
+        <table id="tblStudent" class="table table-bordered table-striped table-responsive table-hover">
+            <thead>
+                <tr>
+                    <th align="left" class="productth">Invoice Number</th>
+                    <th align="left" class="productth">Customer</th>
+                    <th align="left" class="productth">Product</th>
+                    <th align="left" class="productth">Price</th>
+                    <th align="left" class="productth">Quantity</th>
+                    <th align="left" class="productth">Total</th>
+                    <th align="left" class="productth">Invoice Print</th>
+
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+
+
+    </div>
+}
+
+
+
+
+@section Scripts {
+
+
+    <script type="text/javascript">
+
+        $(function () {
+            LoadData($('#keyword').val());
+            return false;
+        });
+
+
+        $("#btnSave").click(function () {
+
+            var std = {};
+            LoadData($('#keyword').val());
+            std.invoiceNum = $("#invoice").val();
+            std.productId = $('#product option:selected').val();
+            std.quantity = $("#quantity").val();
+            std.bill = $("#totalbill").val();
+            std.customerId = $('#Customer option:selected').val();
+
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("createInvoice")',
+                data: '{std: ' + JSON.stringify(std) + '}',
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function () {
+                   // alert("Data has been added successfully.");
+                    LoadData();
+                },
+                error: function () {
+                    alert("Error while inserting data");
+                }
+            });
+            alert('Record is successfully added into the database.');
+            LoadData($('#keyword').val());
+            return false;
+        });
+            $("#btnSearch").click(function () {
+
+                LoadData($('#keyword').val());
+                return false;
+        });
+
+        function printInvoice(id) {
+            var x = id.toString();
+            var x = "#" + x;
+            var str = $(x).val();
+            //alert(str);
+
+            var url = '@Url.Action("printInvoice", "Dashboard", new { id = "__param__" })';
+            window.location.href = url.replace('__param__', encodeURIComponent(str));
+        }
+
+
+
+
+
+    function LoadData(keyword) {
+        $("#tblStudent tbody tr").remove();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("getInvoice")',
+            dataType: 'json',
+            data: { id: keyword },
+            success: function (data) {
+                var items = '';
+                var count = 0;
+                $.each(data, function (i, item) {
+                    var rows = "<tr>"
+                        + "<td class='prtoducttd'>" + item.invoiceNum + "</td>"
+                        + "<td class='prtoducttd'>" + item.customerName + "</td>"
+
+                        + "<td class='prtoducttd'>" + item.productName + "</td>"
+                        + "<td class='prtoducttd'>" + item.salesPrice + "</td>"
+                        + "<td class='prtoducttd'>" + item.quantity + "</td>"
+                        + "<td class='prtoducttd'>" + item.bill + "</td>"
+                        + "<td class='prtoducttd'><button type='button' id='"+ count +"' onClick='printInvoice("+count+");' class='btn' value='" + item.invoiceNum + "'>View Invoice</button> </td>"
+                    + "</tr>";
+                    $('#tblStudent tbody').append(rows);
+                    count++;
+
+                });
+                var newInvoice = $('#invoice').val();
+                var x = parseInt(newInvoice);
+                if (keyword == null) {
+                    x++;
+                }
+                
+
+                $('#invoice').val(x.toString());
+            },
+            error: function (ex) {
+                var r = jQuery.parseJSON(response.responseText);
+                alert("Message: " + r.Message);
+                alert("StackTrace: " + r.StackTrace);
+                alert("ExceptionType: " + r.ExceptionType);
+            }
+
+        });
+        return false;
+        }
+
+
+
+
+
+
+
+
+    </script>
+
+}

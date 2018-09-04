@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="StudentModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+  <EntityType Name="Student">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="studentName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="studentAddress" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+  </EntityType>
+  <EntityContainer Name="StudentEntities" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="Students" EntityType="Self.Student" />
+    <EntitySet Name="Customers" EntityType="StudentModel.Customer" />
+    <EntitySet Name="Invoices" EntityType="StudentModel.Invoice" />
+    <EntitySet Name="Products" EntityType="StudentModel.Product" />
+    <EntitySet Name="Suppliers" EntityType="StudentModel.Supplier" />
+    <AssociationSet Name="FK__Invoice__custome__1B0907CE" Association="StudentModel.FK__Invoice__custome__1B0907CE">
+      <End Role="Customer" EntitySet="Customers" />
+      <End Role="Invoice" EntitySet="Invoices" />
+    </AssociationSet>
+    <AssociationSet Name="FK__Invoice__product__1A14E395" Association="StudentModel.FK__Invoice__product__1A14E395">
+      <End Role="Product" EntitySet="Products" />
+      <End Role="Invoice" EntitySet="Invoices" />
+    </AssociationSet>
+    <AssociationSet Name="FK__Product__supplie__173876EA" Association="StudentModel.FK__Product__supplie__173876EA">
+      <End Role="Supplier" EntitySet="Suppliers" />
+      <End Role="Product" EntitySet="Products" />
+    </AssociationSet>
+    <FunctionImport Name="GetInvoices" ReturnType="Collection(StudentModel.GetInvoices_Result)" />
+    <FunctionImport Name="GetSearch" ReturnType="Collection(StudentModel.GetSearch_Result)">
+      <Parameter Name="keyword" Mode="In" Type="String" />
+    </FunctionImport>
+  </EntityContainer>
+  <EntityType Name="Customer">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="customerName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="customerContact" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+    <NavigationProperty Name="Invoices" Relationship="StudentModel.FK__Invoice__custome__1B0907CE" FromRole="Customer" ToRole="Invoice" />
+  </EntityType>
+  <EntityType Name="Invoice">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="invoiceNum" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="productId" Type="Int32" />
+    <Property Name="quantity" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="bill" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="customerId" Type="Int32" />
+    <NavigationProperty Name="Customer" Relationship="StudentModel.FK__Invoice__custome__1B0907CE" FromRole="Invoice" ToRole="Customer" />
+    <NavigationProperty Name="Product" Relationship="StudentModel.FK__Invoice__product__1A14E395" FromRole="Invoice" ToRole="Product" />
+  </EntityType>
+  <EntityType Name="Product">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="productName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="purchasePrice" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="salesPrice" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="supplierId" Type="Int32" />
+    <NavigationProperty Name="Invoices" Relationship="StudentModel.FK__Invoice__product__1A14E395" FromRole="Product" ToRole="Invoice" />
+    <NavigationProperty Name="Supplier" Relationship="StudentModel.FK__Product__supplie__173876EA" FromRole="Product" ToRole="Supplier" />
+  </EntityType>
+  <EntityType Name="Supplier">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="supplierName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="supplierContact" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+    <NavigationProperty Name="Products" Relationship="StudentModel.FK__Product__supplie__173876EA" FromRole="Supplier" ToRole="Product" />
+  </EntityType>
+  <Association Name="FK__Invoice__custome__1B0907CE">
+    <End Type="StudentModel.Customer" Role="Customer" Multiplicity="0..1" />
+    <End Type="StudentModel.Invoice" Role="Invoice" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Customer">
+        <PropertyRef Name="id" />
+      </Principal>
+      <Dependent Role="Invoice">
+        <PropertyRef Name="customerId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK__Invoice__product__1A14E395">
+    <End Type="StudentModel.Product" Role="Product" Multiplicity="0..1" />
+    <End Type="StudentModel.Invoice" Role="Invoice" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Product">
+        <PropertyRef Name="id" />
+      </Principal>
+      <Dependent Role="Invoice">
+        <PropertyRef Name="productId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK__Product__supplie__173876EA">
+    <End Type="StudentModel.Supplier" Role="Supplier" Multiplicity="0..1" />
+    <End Type="StudentModel.Product" Role="Product" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Supplier">
+        <PropertyRef Name="id" />
+      </Principal>
+      <Dependent Role="Product">
+        <PropertyRef Name="supplierId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <ComplexType Name="GetInvoices_Result">
+    <Property Type="String" Name="invoiceNum" Nullable="true" MaxLength="50" />
+    <Property Type="String" Name="customerName" Nullable="true" MaxLength="50" />
+    <Property Type="String" Name="productName" Nullable="true" MaxLength="50" />
+    <Property Type="String" Name="salesPrice" Nullable="true" MaxLength="50" />
+    <Property Type="String" Name="quantity" Nullable="true" MaxLength="50" />
+    <Property Type="String" Name="bill" Nullable="true" MaxLength="50" />
+  </ComplexType>
+  <ComplexType Name="GetSearch_Result">
+    <Property Type="String" Name="invoiceNum" Nullable="true" MaxLength="50" />
+    <Property Type="String" Name="customerName" Nullable="true" MaxLength="50" />
+    <Property Type="String" Name="productName" Nullable="true" MaxLength="50" />
+    <Property Type="String" Name="salesPrice" Nullable="true" MaxLength="50" />
+    <Property Type="String" Name="quantity" Nullable="true" MaxLength="50" />
+    <Property Type="String" Name="bill" Nullable="true" MaxLength="50" />
+  </ComplexType>
+</Schema>
